@@ -10501,6 +10501,8 @@ int mbedtls_ssl_session_load( mbedtls_ssl_session *session,
  */
 int mbedtls_ssl_handshake_step( mbedtls_ssl_context *ssl )
 {
+    mbedtls_printf("mbedtls_ssl_handshake_step\n");
+    
     int ret = MBEDTLS_ERR_SSL_FEATURE_UNAVAILABLE;
 
     if( ssl == NULL || ssl->conf == NULL )
