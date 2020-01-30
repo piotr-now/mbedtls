@@ -199,6 +199,15 @@ move_handshake_to_state:MBEDTLS_SSL_IS_CLIENT:MBEDTLS_SSL_SERVER_HELLO_VERIFY_RE
 Negative test moving servers ssl to state: NEW_SESSION_TICKET
 move_handshake_to_state:MBEDTLS_SSL_IS_SERVER:MBEDTLS_SSL_SERVER_NEW_SESSION_TICKET:0
 
+Test sending application data without fragmentation inside SSL
+send_application_data:1000:500:100
+
+Test sending application data with fragmentation inside SSL
+send_application_data:1000:2000:3000
+
+Test sending application data with small buffer
+send_application_data:32:200:5000
+
 SSL DTLS replay: initial state, seqnum 0
 ssl_dtls_replay:"":"000000000000":0
 
