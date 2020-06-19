@@ -4739,6 +4739,7 @@ static int ssl_write_new_session_ticket( mbedtls_ssl_context *ssl )
 int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
 {
     int ret = MBEDTLS_ERR_PLATFORM_FAULT_DETECTED;
+    volatile int ssl_state;
 
     if( ssl->state == MBEDTLS_SSL_HANDSHAKE_OVER || ssl->handshake == NULL )
         return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
@@ -4757,9 +4758,16 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
     }
 #endif /* MBEDTLS_SSL_PROTO_DTLS */
 
-    switch( ssl->state )
+    ssl_state = ssl->state;
+
+    switch( ssl_state )
     {
         case MBEDTLS_SSL_HELLO_REQUEST:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_HELLO_REQUEST )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ssl->state = MBEDTLS_SSL_CLIENT_HELLO;
             break;
 
@@ -4767,6 +4775,11 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
          *  <==   ClientHello
          */
         case MBEDTLS_SSL_CLIENT_HELLO:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CLIENT_HELLO )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_parse_client_hello( ssl );
             break;
 
@@ -4783,22 +4796,47 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
          *        ServerHelloDone
          */
         case MBEDTLS_SSL_SERVER_HELLO:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_SERVER_HELLO )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_write_server_hello( ssl );
             break;
 
         case MBEDTLS_SSL_SERVER_CERTIFICATE:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_SERVER_CERTIFICATE )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = mbedtls_ssl_write_certificate( ssl );
             break;
 
         case MBEDTLS_SSL_SERVER_KEY_EXCHANGE:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_SERVER_KEY_EXCHANGE )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_write_server_key_exchange( ssl );
             break;
 
         case MBEDTLS_SSL_CERTIFICATE_REQUEST:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CERTIFICATE_REQUEST )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_write_certificate_request( ssl );
             break;
 
         case MBEDTLS_SSL_SERVER_HELLO_DONE:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_SERVER_HELLO_DONE )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_write_server_hello_done( ssl );
             break;
 
@@ -4810,22 +4848,47 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
          *        Finished
          */
         case MBEDTLS_SSL_CLIENT_CERTIFICATE:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CLIENT_CERTIFICATE )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = mbedtls_ssl_parse_certificate( ssl );
             break;
 
         case MBEDTLS_SSL_CLIENT_KEY_EXCHANGE:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CLIENT_KEY_EXCHANGE )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_process_in_client_key_exchange( ssl );
             break;
 
         case MBEDTLS_SSL_CERTIFICATE_VERIFY:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CERTIFICATE_VERIFY )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = ssl_parse_certificate_verify( ssl );
             break;
 
         case MBEDTLS_SSL_CLIENT_CHANGE_CIPHER_SPEC:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CLIENT_CHANGE_CIPHER_SPEC )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = mbedtls_ssl_parse_change_cipher_spec( ssl );
             break;
 
         case MBEDTLS_SSL_CLIENT_FINISHED:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_CLIENT_FINISHED )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = mbedtls_ssl_parse_finished( ssl );
             break;
 
@@ -4835,6 +4898,11 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
          *        Finished
          */
         case MBEDTLS_SSL_SERVER_CHANGE_CIPHER_SPEC:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_SERVER_CHANGE_CIPHER_SPEC )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
 #if defined(MBEDTLS_SSL_SESSION_TICKETS)
             if( ssl->handshake->new_session_ticket != 0 )
                 ret = ssl_write_new_session_ticket( ssl );
@@ -4844,21 +4912,36 @@ int mbedtls_ssl_handshake_server_step( mbedtls_ssl_context *ssl )
             break;
 
         case MBEDTLS_SSL_SERVER_FINISHED:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_SERVER_FINISHED )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = mbedtls_ssl_write_finished( ssl );
             break;
 
         case MBEDTLS_SSL_FLUSH_BUFFERS:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_FLUSH_BUFFERS )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             MBEDTLS_SSL_DEBUG_MSG( 2, ( "handshake: done" ) );
             ssl->state = MBEDTLS_SSL_HANDSHAKE_WRAPUP;
             break;
 
         case MBEDTLS_SSL_HANDSHAKE_WRAPUP:
+            mbedtls_platform_random_delay();
+            if( ssl_state != MBEDTLS_SSL_HANDSHAKE_WRAPUP )
+            {
+                return( MBEDTLS_ERR_PLATFORM_FAULT_DETECTED );
+            }
             ret = mbedtls_ssl_handshake_wrapup( ssl );
             break;
 
         case MBEDTLS_SSL_INVALID:
         default:
-            MBEDTLS_SSL_DEBUG_MSG( 1, ( "invalid state %d", ssl->state ) );
+            MBEDTLS_SSL_DEBUG_MSG( 1, ( "invalid state %d", ssl_state ) );
             return( MBEDTLS_ERR_SSL_BAD_INPUT_DATA );
     }
 
